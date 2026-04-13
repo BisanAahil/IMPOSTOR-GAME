@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impostor Who?</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF3CAC;
+            --secondary: #00F5A0;
+            --danger: #FF4D4D;
+            --accent: #FFDE03;
+            --purple: #784BA0;
+            --blue: #2B86C5;
+            --bg: #0D0D1A;
+            --card-bg: #1A1A2E;
+            --text-light: #FFFFFF;
+            --text-muted: rgba(255,255,255,0.6);
+            --neon-glow-pink: 0 0 20px #FF3CAC88, 0 0 60px #FF3CAC44;
+            --neon-glow-green: 0 0 20px #00F5A088, 0 0 60px #00F5A044;
+            --neon-glow-yellow: 0 0 20px #FFDE0388, 0 0 60px #FFDE0344;
+        }
+
+```
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: 'Nunito', sans-serif;
+        background: var(--bg);
+        color: var(--text-light);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        overflow-x: hidden;
+        position: relative;
+    }
+
+    /* Animated background */
+    body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: 
+            radial-gradient(ellipse at 20% 20%, rgba(255, 60, 172, 0.15) 0%, transparent 50%),
+            radial-gradient(ellipse at 80% 80%, rgba(0, 245, 160, 0.1) 0%, transparent 50%),
+            radial-gradient(ellipse at 50% 50%, rgba(120, 75, 160, 0.1) 0%, transparent 70%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .screen {
+        display: none;
+        width: 100%;
+        max-width: 420px;
+        padding: 24px 20px;
+        flex-direction: column;
+        gap: 14px;
+        margin-top: 3vh;
+        position: relative;
+        z-index: 1;
+    }
+
+    .screen.active {
+        display: flex;
+        animation: slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(30px) scale(0.96); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* ====== LOGO ====== */
+    .logo {
+        font-family: 'Bangers', cursive;
+        font-size: 52px;
+        letter-spacing: 3px;
+        line-height: 1;
+        text-align: center;
+        background: linear-gradient(135deg, #FF3CAC, #FFDE03, #00F5A0);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        filter: drop-shadow(0 0 20px rgba(255, 60, 172, 0.5));
+    }
+
+    .logo-sub {
+        font-family: 'Bangers', cursive;
+        font-size: 18px;
+        letter-spacing: 5px;
+        color: var(--text-muted);
+        text-align: center;
+        margin-top: 2px;
+    }
+
+    /* ====== CARD CONTAINER ====== */
+    .glass-card {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 20px;
+        padding: 20px;
+        backdrop-filter: blur(10px);
+    }
+
+    /* ====== BUTTONS ====== */
+    button {
+        font-family: 'Bangers', cursive;
+        letter-spacing: 2px;
+        padding: 16px 20px;
+        border: none;
+        border-radius: 14px;
+        font-size: 22px;
+        cursor: pointer;
+        width: 100%;
+        transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+        position: relative;
+        overflow: hidden;
+    }
+
+    button::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to bottom, rgba(255,255,255,0.15), transparent);
+        pointer-events: none;
+    }
+
+    button:active { transform: scale(0.95); }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #FF3CAC, #784BA0);
+        color: #fff;
+        box-shadow: 0 4px 20px rgba(255,60,172,0.4), var(--neon-glow-pink);
+    }
+    .btn-primary:hover { filter: brightness(1.1); }
+
+    .btn-secondary {
+        background: linear-gradient(135deg, #00F5A0, #00D2FF);
+        color: #0D0D1A;
+        box-shadow: 0 4px 20px rgba(0,245,160,0.35), var(--neon-glow-green);
+    }
+
+    .btn-accent {
+        background: linear-gradient(135deg, #FFDE03, #FF8C00);
+        color: #0D0D1A;
+        box-shadow: 0 4px 20px rgba(255,222,3,0.35), var(--neon-glow-yellow);
+    }
+
+    .btn-danger {
+        background: linear-gradient(135deg, #FF4D4D, #C0392B);
+        color: #fff;
+        box-shadow: 0 4px 20px rgba(255,77,77,0.4);
+    }
+
+    .btn-outline {
+        background: transparent;
+        border: 2px solid rgba(255,255,255,0.25);
+        color: rgba(255,255,255,0.7);
+        font-size: 18px;
+        box-shadow: none;
+    }
+    .btn-outline:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+
+    /* ====== INPUTS / SELECTS ====== */
+    input[type="text"], select {
+        font-family: 'Nunito', sans-serif;
+        padding: 14px 16px;
+        border-radius: 12px;
+        border: 2px solid rgba(255,255,255,0.15);
+        font-size: 16px;
+        font-weight: 700;
+        width: 100%;
+        background: rgba(255,255,255,0.08);
+        color: #fff;
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input[type="text"]::placeholder { color: rgba(255,255,255,0.35); }
+    input[type="text"]:focus, select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(255,60,172,0.2);
+    }
+
+    select option { background: #1A1A2E; color: #fff; }
+
+    /* ====== PLAYER LIST ====== */
+    .player-list {
+        list-style: none;
+        max-height: 210px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .player-list::-webkit-scrollbar { width: 4px; }
+    .player-list::-webkit-scrollbar-track { background: transparent; }
+    .player-list::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 2px; }
+
+    .player-list li {
+        background: rgba(255,255,255,0.07);
+        border: 1px solid rgba(255,255,255,0.1);
+        padding: 12px 14px;
+        border-radius: 10px;
+        font-weight: 900;
+        font-size: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background 0.2s;
+    }
+
+    .player-list li:hover { background: rgba(255,255,255,0.12); }
+
+    .remove-btn {
+        background: none;
+        border: none;
+        color: #FF4D4D;
+        cursor: pointer;
+        font-size: 18px;
+        width: auto;
+        padding: 0 4px;
+        box-shadow: none;
+        line-height: 1;
+        letter-spacing: 0;
+    }
+    .remove-btn::after { display: none; }
+    .remove-btn:active { transform: scale(0.9); }
+
+    /* ====== CATEGORY GRID ====== */
+    #categories-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    #categories-container button {
+        font-size: 17px;
+        padding: 14px 10px;
+    }
+
+    /* Category button colors cycle */
+    .cat-btn-0 { background: linear-gradient(135deg, #FF3CAC, #784BA0); color: #fff; box-shadow: 0 4px 15px rgba(255,60,172,0.3); }
+    .cat-btn-1 { background: linear-gradient(135deg, #00F5A0, #00D2FF); color: #0D0D1A; box-shadow: 0 4px 15px rgba(0,245,160,0.3); }
+    .cat-btn-2 { background: linear-gradient(135deg, #FFDE03, #FF8C00); color: #0D0D1A; box-shadow: 0 4px 15px rgba(255,222,3,0.3); }
+    .cat-btn-3 { background: linear-gradient(135deg, #2B86C5, #6A3DE8); color: #fff; box-shadow: 0 4px 15px rgba(43,134,197,0.3); }
+    .cat-btn-4 { background: linear-gradient(135deg, #FF6B6B, #FF8E53); color: #fff; box-shadow: 0 4px 15px rgba(255,107,107,0.3); }
+    .cat-btn-5 { background: linear-gradient(135deg, #A8FF78, #78FFD6); color: #0D0D1A; box-shadow: 0 4px 15px rgba(168,255,120,0.3); }
+    .cat-btn-6 { background: linear-gradient(135deg, #f953c6, #b91d73); color: #fff; box-shadow: 0 4px 15px rgba(249,83,198,0.3); }
+    .cat-btn-7 { background: linear-gradient(135deg, #43E97B, #38F9D7); color: #0D0D1A; box-shadow: 0 4px 15px rgba(67,233,123,0.3); }
+    .cat-btn-8 { background: linear-gradient(135deg, #FA8231, #f7b733); color: #0D0D1A; box-shadow: 0 4px 15px rgba(250,130,49,0.3); }
+    .cat-btn-9 { background: linear-gradient(135deg, #30CFD0, #330867); color: #fff; box-shadow: 0 4px 15px rgba(48,207,208,0.3); }
+    .cat-btn-10 { background: linear-gradient(135deg, #FF512F, #DD2476); color: #fff; box-shadow: 0 4px 15px rgba(255,81,47,0.3); }
+
+    /* ====== SECTION LABEL ====== */
+    .section-label {
+        font-family: 'Bangers', cursive;
+        font-size: 26px;
+        letter-spacing: 2px;
+        color: var(--accent);
+        text-shadow: 0 0 15px rgba(255,222,3,0.5);
+    }
+
+    /* ====== GAME CARD (hold to reveal) ====== */
+    .card-container {
+        width: 100%;
+        min-height: 58vh;
+        border-radius: 24px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 30px 25px;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        user-select: none;
+        -webkit-user-select: none;
+        transition: transform 0.15s, box-shadow 0.3s;
+    }
+
+    .card-container::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.25) 0%, transparent 60%);
+        pointer-events: none;
+    }
+
+    .card-container:active { transform: scale(0.97); }
+
+    .card-title {
+        font-family: 'Bangers', cursive;
+        font-size: 38px;
+        letter-spacing: 3px;
+        color: rgba(0,0,0,0.85);
+        text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        margin-bottom: 6px;
+        text-align: center;
+    }
+
+    .card-subtitle {
+        font-size: 14px;
+        font-weight: 700;
+        color: rgba(0,0,0,0.6);
+        margin-bottom: 35px;
+        text-align: center;
+    }
+
+    .card-action-icon {
+        font-size: 52px;
+        animation: bounce 1.2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    .card-action-text {
+        font-family: 'Bangers', cursive;
+        font-size: 20px;
+        letter-spacing: 3px;
+        color: rgba(0,0,0,0.7);
+        margin-top: 8px;
+    }
+
+    /* Tap hint pulse on card */
+    .tap-hint {
+        position: absolute;
+        bottom: 18px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: 2px;
+        color: rgba(0,0,0,0.45);
+        text-transform: uppercase;
+    }
+
+    .secret-word-revealed {
+        font-family: 'Bangers', cursive;
+        font-size: 48px;
+        letter-spacing: 3px;
+        color: rgba(0,0,0,0.9);
+        text-align: center;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        display: none;
+        animation: wordPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes wordPop {
+        from { transform: scale(0.5); opacity: 0; }
+        to   { transform: scale(1); opacity: 1; }
+    }
+
+    .impostor-label {
+        font-family: 'Bangers', cursive;
+        font-size: 52px;
+        letter-spacing: 4px;
+        color: #fff;
+        text-shadow: 0 0 30px rgba(255,255,255,0.8), 0 4px 15px rgba(0,0,0,0.5);
+        display: none;
+        text-align: center;
+        animation: wordPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    #btn-next-player {
+        display: none;
+        margin-top: 16px;
+    }
+
+    /* ====== DISCUSSION SCREEN ====== */
+    .discussion-icon {
+        font-size: 70px;
+        text-align: center;
+        animation: wiggle 2s ease-in-out infinite;
+    }
+
+    @keyframes wiggle {
+        0%, 100% { transform: rotate(-5deg); }
+        50% { transform: rotate(5deg); }
+    }
+
+    .starter-highlight {
+        font-family: 'Bangers', cursive;
+        font-size: 28px;
+        letter-spacing: 2px;
+        background: linear-gradient(135deg, #FFDE03, #FF8C00);
+        color: #0D0D1A;
+        padding: 16px 20px;
+        border-radius: 16px;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(255,222,3,0.35), var(--neon-glow-yellow);
+    }
+
+    /* ====== MISC ====== */
+    p {
+        font-size: 16px;
+        color: var(--text-muted);
+        font-weight: 700;
+        text-align: center;
+        line-height: 1.5;
+    }
+
+    h2 {
+        font-family: 'Bangers', cursive;
+        font-size: 32px;
+        letter-spacing: 2px;
+        text-align: center;
+        color: #fff;
+        text-shadow: 0 0 20px rgba(255,255,255,0.2);
+    }
+
+    .input-row {
+        display: flex;
+        gap: 8px;
+    }
+
+    .input-row input { flex: 1; }
+    .input-row button { width: auto; padding: 0 20px; font-size: 26px; }
+
+    .impostor-selector {
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 16px;
+        padding: 16px;
+    }
+
+    .impostor-selector label {
+        display: block;
+        font-weight: 900;
+        font-size: 15px;
+        margin-bottom: 10px;
+        color: var(--accent);
+        font-family: 'Bangers', cursive;
+        font-size: 20px;
+        letter-spacing: 1px;
+    }
+
+    .divider {
+        height: 1px;
+        background: rgba(255,255,255,0.08);
+        margin: 4px 0;
+    }
+
+    /* Card color palettes */
+    .card-theme-0 { background: linear-gradient(135deg, #FDE047, #F59E0B); }
+    .card-theme-1 { background: linear-gradient(135deg, #6EE7B7, #059669); }
+    .card-theme-2 { background: linear-gradient(135deg, #93C5FD, #2563EB); }
+    .card-theme-3 { background: linear-gradient(135deg, #F9A8D4, #DB2777); }
+    .card-theme-4 { background: linear-gradient(135deg, #C4B5FD, #7C3AED); }
+    .card-theme-5 { background: linear-gradient(135deg, #FDBA74, #EA580C); }
+    .card-theme-6 { background: linear-gradient(135deg, #D9F99D, #65A30D); }
+
+    .card-impostor { background: linear-gradient(135deg, #FF4D4D, #7F0000) !important; }
+    .card-impostor .card-title { color: rgba(255,255,255,0.9); }
+    .card-impostor .card-subtitle { color: rgba(255,255,255,0.6); }
+
+    /* Reveal overlay shimmer */
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+</style>
+```
+
+</head>
+<body>
+
+<!-- ===== HOME ===== -->
+
+<div id="screen-home" class="screen active">
+    <div style="margin: 10px auto 0;">
+        <div class="logo">IMPOSTOR</div>
+        <div class="logo-sub">WHO? 🔍</div>
+    </div>
+    <p>Descobre quem não sabe a palavra secreta!</p>
+
+```
+<div class="impostor-selector">
+    <label for="num-impostors">🕵️ Quantidade de Impostores</label>
+    <select id="num-impostors">
+        <option value="1" selected>1 Impostor</option>
+        <option value="2">2 Impostores</option>
+        <option value="3">3 Impostores</option>
+        <option value="4">4 Impostores</option>
+        <option value="5">5 Impostores</option>
+    </select>
+</div>
+
+<button class="btn-primary" onclick="goToScreen('screen-players')">🎮 JOGAR AGORA</button>
+```
+
+</div>
+
+<!-- ===== PLAYERS ===== -->
+
+<div id="screen-players" class="screen">
+    <h2>👥 Adicionar Jogadores</h2>
+    <div class="input-row">
+        <input type="text" id="player-input" placeholder="Nome do jogador..." onkeypress="handleEnter(event)">
+        <button class="btn-secondary" onclick="addPlayer()" style="border-radius:12px;">+</button>
+    </div>
+    <ul id="player-list-ul" class="player-list"></ul>
+    <div class="divider"></div>
+    <button class="btn-accent" onclick="goToCategories()">CONTINUAR →</button>
+    <button class="btn-outline" onclick="goToScreen('screen-home')">← Voltar</button>
+</div>
+
+<!-- ===== CATEGORIES ===== -->
+
+<div id="screen-categories" class="screen">
+    <h2>🗂️ Escolhe a Categoria</h2>
+    <div id="categories-container"></div>
+    <button class="btn-outline" onclick="goToScreen('screen-players')" style="margin-top:8px;">← Voltar</button>
+</div>
+
+<!-- ===== RANDOM CHOICE ===== -->
+
+<div id="screen-random-choice" class="screen">
+    <h2>🎲 Modo Aleatório</h2>
+    <p>O que desejas fazer?</p>
+    <button class="btn-primary" onclick="showCustomWordsScreen()">✏️ CRIAR MINHAS PALAVRAS</button>
+    <button class="btn-secondary" onclick="startGame('Aleatório')">🎲 PALAVRAS ALEATÓRIAS</button>
+    <button class="btn-outline" onclick="goToScreen('screen-categories')">← Voltar</button>
+</div>
+
+<!-- ===== CUSTOM WORDS ===== -->
+
+<div id="screen-custom-words" class="screen">
+    <h2>✏️ Tuas Palavras</h2>
+    <p style="font-size:0.85rem;">Cria entre 5 a 50 palavras para o jogo.</p>
+    <div class="input-row">
+        <input type="text" id="custom-word-input" placeholder="Escreve uma palavra..." onkeypress="if(event.key==='Enter') addCustomWord()">
+        <button class="btn-accent" onclick="addCustomWord()" style="border-radius:12px;">+</button>
+    </div>
+    <ul id="custom-words-list" class="player-list" style="min-height:50px;"></ul>
+    <p style="font-size:0.9rem;">Total: <span id="custom-words-count" style="color:var(--accent);">0</span> / 50</p>
+    <button class="btn-primary" onclick="startCustomGame()">🚀 JOGAR COM ESTAS PALAVRAS</button>
+    <button class="btn-outline" onclick="goToScreen('screen-random-choice')">← Voltar</button>
+</div>
+
+<!-- ===== CARD ===== -->
+
+<div id="screen-card" class="screen">
+    <div id="player-card" class="card-container card-theme-0">
+
+```
+    <h1 id="card-player-name" class="card-title">JOGADOR 1</h1>
+    <p id="card-instruction" class="card-subtitle">Não diga a palavra para os outros jogadores.</p>
+
+    <div id="card-action">
+        <div class="card-action-icon">👆</div>
+        <div class="card-action-text">TOCA PARA REVELAR</div>
+    </div>
+
+    <div id="card-word" class="secret-word-revealed"></div>
+    <div id="card-impostor" class="impostor-label">🚨 IMPOSTOR! 🚨</div>
+
+    <div class="tap-hint" id="tap-hint">segura para ver • solta para esconder</div>
+</div>
+
+<button id="btn-next-player" class="btn-accent" onclick="nextPlayer()">
+    PASSAR PARA O PRÓXIMO →
+</button>
+```
+
+</div>
+
+<!-- ===== DISCUSSION ===== -->
+
+<div id="screen-discussion" class="screen">
+    <div class="discussion-icon">🗣️</div>
+    <h2>O telefone passou por todos!</h2>
+    <p style="font-size:1.1rem;">Agora discutam e descubram quem é o impostor!</p>
+
+```
+<div class="starter-highlight" id="starter-player"></div>
+
+<button class="btn-danger" onclick="resetGame()" style="margin-top:20px;">🔄 TERMINAR E NOVO JOGO</button>
+```
+
+</div>
+
+<script>
+    const wordDatabase = {
+        "Animais": ["Cachorro","Gato","Elefante","Leão","Tubarão","Pinguim","Girafa","Macaco","Tigre","Zebra","Coelho","Galinha","Porco","Vaca","Cavalo","Cabra","Pato","Rato","Cobra","Águia","Coruja","Baleia","Golfinho","Foca","Camelo","Hipopótamo","Rinoceronte","Esquilo","Abelha","Formiga"],
+        "Comida": ["Pizza","Hambúrguer","Sushi","Lasanha","Salada","Churrasco","Sopa","Tacos","Arroz","Feijão","Macarrão","Ovo","Queijo","Presunto","Pão","Bolo","Sorvete","Chocolate","Brigadeiro","Pipoca","Batata","Cenoura","Tomate","Alface","Banana","Maçã","Uva","Laranja","Morango","Melancia"],
+        "Países": ["Brasil","Moçambique","Japão","Canadá","França","Austrália","Angola","Portugal","Argentina","Chile","México","Estados Unidos","Inglaterra","Espanha","Itália","Alemanha","China","Índia","Rússia","África do Sul","Egito","Grécia","Suécia","Noruega","Tailândia","Coreia do Sul","Cuba","Peru","Colômbia","Turquia"],
+        "Profissões": ["Médico","Professor","Engenheiro","Bombeiro","Programador","Polícia","Padeiro","Advogado","Dentista","Veterinário","Jornalista","Motorista","Cozinheiro","Garçom","Mecânico","Eletricista","Carpinteiro","Pintor","Jardineiro","Carteiro","Farmacêutico","Enfermeiro","Arquiteto","Designer","Cantor","Ator","Escritor","Piloto","Cientista","Vendedor"],
+        "Objetos da Casa": ["Sofá","Televisão","Geladeira","Cama","Micro-ondas","Mesa","Cadeira","Fogão","Liquidificador","Ventilador","Abajur","Tapete","Cortina","Almofada","Espelho","Vassoura","Rodo","Balde","Sabonete","Toalha","Escova de Dente","Pente","Tesoura","Panela","Prato","Copo","Garfo","Faca","Colher","Computador"],
+        "Frutas": ["Maçã","Banana","Laranja","Uva","Morango","Melancia","Abacaxi","Manga","Pera","Pêssego","Kiwi","Limão","Coco","Goiaba","Acerola","Jabuticaba","Caju","Amora","Framboesa","Cereja","Tangerina","Mamão","Melão","Maracujá","Carambola","Figo","Ameixa","Damasco","Romã","Nectarina"],
+        "Esportes": ["Futebol","Basquete","Vôlei","Tênis","Natação","Atletismo","Judô","Surfe","Skate","Ciclismo","Boxe","Ginástica","Handebol","Rúgbi","Beisebol","Golfe","Hipismo","Esgrima","Canoagem","Remo","Badminton","Squash","Patinação","Xadrez","Arco e Flecha","Levantamento de Peso","Lutas","Polo Aquático","Triatlo","Alpinismo"],
+        "Roupas": ["Camisa","Calça","Vestido","Saia","Bermuda","Shorts","Blusa","Casaco","Jaqueta","Moletom","Suéter","Meia","Tênis","Sandália","Bota","Chinelo","Gravata","Cinto","Chapéu","Boné","Luva","Cachecol","Pijama","Uniforme","Lenço"],
+        "Aleatório": ["Macaco","Chapéu","Bolacha","Carro","Bicicleta","Lápis","Livro","Janela","Porta","Relógio","Telefone","Cadeado","Mochila","Carteira","Óculos","Guarda-chuva","Chave","Moeda","Bola","Pipa","Robô","Foguete","Nuvem","Estrela","Lua","Sol","Praia","Montanha","Rio","Floresta","Copo","Prato","Colher","Garfo","Mesa","Cadeira","Cama","Almofada","Cobertor","Toalha","Sabão","Escova","Pasta","Banho","Chuveiro","Espelho","Pente","Perfume","Camisa","Calça","Sapato","Meia","Boné","Casaco","Saia","Vestido","Anel","Pulseira","Brinco","Colar","Geladeira","Fogão","Panela","Faca","Forno","Microondas","Leite","Pão","Queijo","Ovo","Maçã","Banana","Uva","Laranja","Manga","Abacaxi","Melancia","Cenoura","Batata","Tomate"],
+        "Natureza": ["Sol","Lua","Estrela","Nuvem","Chuva","Vento","Arco-íris","Raio","Neve","Nevoeiro","Rio","Lago","Mar","Oceano","Cachoeira","Praia","Areia","Ilha","Baía","Recife","Montanha","Colina","Vale","Planície","Deserto","Caverna","Rochedo","Pedra","Terra","Solo","Floresta","Selva","Bosque","Árvore","Arbusto","Planta","Flor","Folha","Raiz","Tronco","Semente","Fruta","Grama","Musgo","Liana","Galho","Céu","Horizonte","Aurora","Pôr do sol"],
+        "Transportes": ["Carro","Bicicleta","Moto","Autocarro","Comboio","Avião","Barco","Navio","Helicóptero","Táxi","Camião","Van","Carrinha","Metro","Elétrico","Trotinete","Patinete","Skate","Bicicleta elétrica","Motocicleta","Jato","Avião de carga","Barco a remo","Lancha","Ferry","Submarino","Balão","Dirigível","Teleférico","Funicular","Trator","Bulldozer","Escavadora","Ambulância","Carro de polícia","Camião de bombeiros","Caravana","Reboque","Kart","Buggy","Monotrilho","Comboio rápido","Avião privado","Helicóptero de resgate","Barco de pesca","Navio de cruzeiro","Jet ski","Barco inflável","Canoa","Caiaque"]
+    };
+
+    // ==========================================
+    // GAME STATE
+    // ==========================================
+    let players = [];
+    let currentPlayerIndex = 0;
+    let impostors = [];
+    let selectedWord = "";
+    let customWordsArray = [];
+
+    // ==========================================
+    // NAVIGATION
+    // ==========================================
+    function goToScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function handleEnter(e) { if (e.key === 'Enter') addPlayer(); }
+
+    // ==========================================
+    // PLAYERS
+    // ==========================================
+    function addPlayer() {
+        const input = document.getElementById('player-input');
+        const name = input.value.trim();
+        if (name) { players.push(name); input.value = ""; updatePlayerList(); }
+    }
+
+    function removePlayer(index) { players.splice(index, 1); updatePlayerList(); }
+
+    function updatePlayerList() {
+        const ul = document.getElementById('player-list-ul');
+        ul.innerHTML = "";
+        players.forEach((p, i) => {
+            const li = document.createElement('li');
+            li.innerHTML = `<span>${p}</span><button class="remove-btn" onclick="removePlayer(${i})">✖</button>`;
+            ul.appendChild(li);
+        });
+    }
+
+    function goToCategories() {
+        const num = parseInt(document.getElementById('num-impostors').value);
+        if (players.length < 3) { alert("Precisas de pelo menos 3 jogadores!"); return; }
+        if (players.length <= num) { alert(`Tens ${players.length} jogadores. O número de impostores (${num}) deve ser menor!`); return; }
+        loadCategories();
+        goToScreen('screen-categories');
+    }
+
+    function loadCategories() {
+        const container = document.getElementById('categories-container');
+        container.innerHTML = "";
+        let i = 0;
+        for (const cat in wordDatabase) {
+            if (cat === "Minhas Palavras") continue;
+            const btn = document.createElement('button');
+            btn.className = `cat-btn-${i % 11}`;
+            btn.style.fontFamily = "'Bangers', cursive";
+            btn.style.letterSpacing = "2px";
+            btn.style.borderRadius = "12px";
+            btn.innerText = cat;
+            btn.onclick = () => { cat === "Aleatório" ? goToScreen('screen-random-choice') : startGame(cat); };
+            container.appendChild(btn);
+            i++;
+        }
+    }
+
+    // ==========================================
+    // CUSTOM WORDS
+    // ==========================================
+    function showCustomWordsScreen() {
+        customWordsArray = [];
+        updateCustomWordsList();
+        goToScreen('screen-custom-words');
+    }
+
+    function addCustomWord() {
+        const input = document.getElementById('custom-word-input');
+        const word = input.value.trim();
+        if (!word) return;
+        if (customWordsArray.length >= 50) { alert("Limite de 50 palavras atingido!"); return; }
+        if (customWordsArray.map(w => w.toLowerCase()).includes(word.toLowerCase())) { alert("Palavra já adicionada!"); return; }
+        customWordsArray.push(word);
+        input.value = "";
+        updateCustomWordsList();
+    }
+
+    function removeCustomWord(i) { customWordsArray.splice(i, 1); updateCustomWordsList(); }
+
+    function updateCustomWordsList() {
+        const ul = document.getElementById('custom-words-list');
+        ul.innerHTML = "";
+        customWordsArray.forEach((w, i) => {
+            const li = document.createElement('li');
+            li.innerHTML = `<span>${w}</span><button class="remove-btn" onclick="removeCustomWord(${i})">✖</button>`;
+            ul.appendChild(li);
+        });
+        document.getElementById('custom-words-count').innerText = customWordsArray.length;
+    }
+
+    function startCustomGame() {
+        if (customWordsArray.length < 5) { alert(`Precisas de pelo menos 5 palavras. Tens ${customWordsArray.length}.`); return; }
+        wordDatabase["Minhas Palavras"] = [...customWordsArray];
+        startGame("Minhas Palavras");
+    }
+
+    // ==========================================
+    // GAME LOGIC
+    // ==========================================
+    function startGame(category) {
+        const num = parseInt(document.getElementById('num-impostors').value);
+        const words = wordDatabase[category];
+        selectedWord = words[Math.floor(Math.random() * words.length)];
+        impostors = [];
+        while (impostors.length < num) {
+            let r = Math.floor(Math.random() * players.length);
+            if (!impostors.includes(r)) impostors.push(r);
+        }
+        currentPlayerIndex = 0;
+        showPlayerCard();
+    }
+
+    const cardThemes = ['card-theme-0','card-theme-1','card-theme-2','card-theme-3','card-theme-4','card-theme-5','card-theme-6'];
+
+    function showPlayerCard() {
+        if (currentPlayerIndex >= players.length) {
+            const starter = players[Math.floor(Math.random() * players.length)];
+            document.getElementById('starter-player').innerText = `⚡ ${starter} começa a rodada!`;
+            goToScreen('screen-discussion');
+            return;
+        }
+
+        const card = document.getElementById('player-card');
+        card.className = 'card-container ' + cardThemes[currentPlayerIndex % cardThemes.length];
+
+        document.getElementById('card-player-name').innerText = players[currentPlayerIndex];
+        document.getElementById('card-instruction').style.display = '';
+        document.getElementById('card-action').style.display = 'block';
+        document.getElementById('card-word').style.display = 'none';
+        document.getElementById('card-impostor').style.display = 'none';
+        document.getElementById('btn-next-player').style.display = 'block';
+        document.getElementById('tap-hint').style.display = 'block';
+
+        goToScreen('screen-card');
+    }
+
+    // ====== TAP/PRESS TO REVEAL, RELEASE TO HIDE ======
+    function setupCardEvents() {
+        const card = document.getElementById('player-card');
+
+        // Mouse
+        card.addEventListener('mousedown', onPressStart);
+        document.addEventListener('mouseup', onPressEnd);
+
+        // Touch
+        card.addEventListener('touchstart', onPressStart, { passive: false });
+        document.addEventListener('touchend', onPressEnd);
+        document.addEventListener('touchcancel', onPressEnd);
+    }
+
+    function onPressStart(e) {
+        e.preventDefault();
+        showWord();
+    }
+
+    function onPressEnd(e) {
+        hideWord();
+    }
+
+    function showWord() {
+        const card = document.getElementById('player-card');
+        document.getElementById('card-action').style.display = 'none';
+        document.getElementById('card-instruction').style.display = 'none';
+        document.getElementById('tap-hint').style.display = 'none';
+
+        if (impostors.includes(currentPlayerIndex)) {
+            card.className = 'card-container card-impostor';
+            document.getElementById('card-impostor').style.display = 'block';
+        } else {
+            document.getElementById('card-word').innerText = selectedWord;
+            document.getElementById('card-word').style.display = 'block';
+        }
+
+    }
+
+    function hideWord() {
+        const card = document.getElementById('player-card');
+        card.className = 'card-container ' + cardThemes[currentPlayerIndex % cardThemes.length];
+
+        document.getElementById('card-action').style.display = 'block';
+        document.getElementById('card-instruction').style.display = '';
+        document.getElementById('tap-hint').style.display = 'block';
+        document.getElementById('card-word').style.display = 'none';
+        document.getElementById('card-impostor').style.display = 'none';
+    }
+
+    function nextPlayer() {
+        currentPlayerIndex++;
+        showPlayerCard();
+    }
+
+    function resetGame() {
+        currentPlayerIndex = 0;
+        impostors = [];
+        selectedWord = "";
+        goToScreen('screen-categories');
+    }
+
+    // Init card events once
+    setupCardEvents();
+</script>
+
+</body>
+</html>
